@@ -16,7 +16,7 @@ def clean_text(text: str) -> list:
     words = [word for word in cleaned.split() if word not in stop_words]
     return words
 
-def generate_word_frequency(text: str) -> dict:
+async def generate_word_frequency(text: str) -> dict:
     """
     Generate a word frequency dictionary from the input text.
     """

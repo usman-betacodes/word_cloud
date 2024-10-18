@@ -28,7 +28,7 @@ async def create_english_word_cloud(data: TextInput):
     if not data.text:
         raise HTTPException(status_code=400, detail="Input text is empty")
     
-    word_freq = generate_word_frequency(data.text)
+    word_freq = await generate_word_frequency(data.text)
 
     if not word_freq:
         raise HTTPException(status_code=400, detail="No valid words in input text")
