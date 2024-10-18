@@ -1,6 +1,6 @@
 # main.py
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request,Query
 from fastapi.responses import JSONResponse
 from models import TextInput, WordCloudOutput
 from utils import generate_word_frequency
@@ -20,15 +20,22 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 @app.post("/english-word-cloud/", response_model=WordCloudOutput)
-async def create_english_word_cloud(data: TextInput):
+async def create_english_word_cloud(
+    data: TextInput, 
+    max_words: int = Query(10, gt=0, le=100, description="Maximum number of words to return (must be between 1 and 100)")
+):
     """
     Generate an English word cloud from the input text, remove stopwords,
     and return the words sorted by frequency in a dictionary.
+    
+    The 'max_words' query parameter controls the maximum number of words returned.
+    It must be greater than 0 and less than or equal to 100.
     """
     if not data.text:
         raise HTTPException(status_code=400, detail="Input text is empty")
     
-    word_freq = await generate_word_frequency(data.text)
+    # Call the generate_word_frequency function with the specified max_words
+    word_freq = await generate_word_frequency(data.text, max_words=max_words)
 
     if not word_freq:
         raise HTTPException(status_code=400, detail="No valid words in input text")

@@ -16,12 +16,19 @@ def clean_text(text: str) -> list:
     words = [word for word in cleaned.split() if word not in stop_words]
     return words
 
-async def generate_word_frequency(text: str) -> dict:
+
+async def generate_word_frequency(text: str, max_words: int) -> dict:
     """
-    Generate a word frequency dictionary from the input text.
+    Generate a word frequency dictionary from the input text,
+    returning only the top 'max_words' most frequent words.
     """
-    words = clean_text(text)
-    word_freq = Counter(words)
+    words = clean_text(text)  # Assuming this function cleans the text appropriately
+    word_freq = Counter(words)  # Count the frequency of each word
+    
     # Sort by frequency in descending order
     sorted_word_freq = dict(sorted(word_freq.items(), key=lambda x: x[1], reverse=True))
-    return sorted_word_freq
+    
+    # Return only the top `max_words` entries
+    limited_word_freq = dict(list(sorted_word_freq.items())[:max_words])
+    
+    return limited_word_freq
