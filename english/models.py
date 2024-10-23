@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict
+from typing import List
 
 
 class TextInput(BaseModel):
@@ -33,6 +33,6 @@ class WordCloudOutput(BaseModel):
     Pydantic model for the output of the word cloud.
 
     Attributes:
-        word_cloud (Dict[str, WordStats]): A dictionary containing word statistics.
+        word_cloud (List[WordStats]): A list containing word statistics.
     """
-    word_cloud: Dict[str, WordStats]
+    word_cloud: List[WordStats]
