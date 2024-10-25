@@ -1,7 +1,6 @@
 import re
 from collections import Counter
 from nltk.corpus import stopwords
-from models import WordStats  # Assuming WordStats is defined elsewhere
 from typing import List, Dict
 
 # Load English stopwords
@@ -41,7 +40,7 @@ async def generate_word_frequency(text: str, max_words: int) -> List[Dict[str, f
 
     # Prepare to calculate percentages and percentiles
     word_stats = []
-    frequencies = list(limited_word_freq.values())
+
     
     # Calculate total unique words for percentile calculation
     total_unique_words = len(limited_word_freq)
@@ -63,7 +62,7 @@ async def generate_word_frequency(text: str, max_words: int) -> List[Dict[str, f
             "percentage": round(percentage, 2),
             "percentile": round(percentile, 2)
         })
-    
+    # print(word_stats)
     return word_stats
 
 

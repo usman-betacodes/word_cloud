@@ -26,13 +26,3 @@ class WordStats(BaseModel):
     count: int
     percentage: float
     percentile: float
-
-
-class WordCloudOutput(BaseModel):
-    """
-    Pydantic model for the output of the word cloud.
-
-    Attributes:
-        word_cloud (List[WordStats]): A list containing word statistics.
-    """
-    word_cloud: List[WordStats]
