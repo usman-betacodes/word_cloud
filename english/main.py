@@ -45,7 +45,7 @@ async def create_english_word_cloud(
         # Handle unexpected errors gracefully
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
-@app.get("/live/")
+@app.get("/live")
 async def live_status():
     """
     Endpoint to check if the service is live.
