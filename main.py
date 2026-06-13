@@ -6,7 +6,7 @@ import uvicorn
 from typing import List
 
 # Initialize FastAPI app
-app = FastAPI()
+app = FastAPI(title="Urdu Word Cloud API", version="3.0")
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):

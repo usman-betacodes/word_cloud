@@ -8,12 +8,11 @@ Nimar Word Cloud AI is a powerful API that analyzes text input and generates ric
 
 ## Features
 
-- Text analysis and word cloud generation
-- Comprehensive word statistics (frequency, percentage, percentile)
+- Text analysis and word frequency calculation restricted to Nouns and Proper Nouns
 - RESTful API for easy integration
-- Support for English text processing
-- Clean, minimalist design for visualizations
-- Customizable word cloud parameters
+- Native support for Urdu text processing using Stanza NLP Model
+- Minimalist and reliable backend processing
+- Customizable frequency limits via `max_words` parameter
 
 ## Installation
 
@@ -21,10 +20,9 @@ Nimar Word Cloud AI is a powerful API that analyzes text input and generates ric
 
 - Python 3.8+
 - FastAPI
-- WordCloud
-- NLTK
-- Pandas
-- Matplotlib
+- Stanza
+- PyTorch
+- Uvicorn
 
 ### Setup
 
@@ -49,23 +47,23 @@ pip install -r requirements.txt
 
 ### Running the API
 
-To start the Word Cloud API server, navigate to the English folder and run the main.py file:
+To start the Word Cloud API server, run the `main.py` file:
 
 ```bash
-cd english
 python main.py
 ```
 
-By default, this will start a FastAPI server on `http://localhost:8000`.
+By default, this will start a FastAPI server on `http://0.0.0.0:8082`.
 
 ### API Endpoints
 
 #### Generate Word Cloud
 
-- **Endpoint**: `/generate-wordcloud`
+- **Endpoint**: `/word-cloud/`
 - **Method**: POST
-- **Request Body**: JSON with text field
-- **Response**: JSON with word cloud image (Base64 encoded) and word statistics
+- **Query Parameter**: `max_words` (optional, default 10, limits the return payload)
+- **Request Body**: JSON with a `text` field
+- **Response**: JSON with the top identified words and their frequencies
 
 #### API Models
 
@@ -99,9 +97,9 @@ class WordStats(BaseModel):
 
 Using cURL:
 ```bash
-curl -X POST "http://localhost:8000/generate-wordcloud" \
+curl -X POST "http://localhost:8082/word-cloud/?max_words=10" \
      -H "Content-Type: application/json" \
-     -d '{"text": "This is a sample text for word cloud generation. The more frequent words will appear larger in the word cloud visualization. Word clouds are useful for visualizing the most important words in a document or corpus."}'
+     -d '{"text": "علی ایک اچھا لڑکا ہے۔ اسکول جاتا ہے۔ کتاب پڑھتا ہے۔ علی نے کتاب خریدی۔"}'
 ```
 
 Using Python requests:
@@ -109,9 +107,9 @@ Using Python requests:
 import requests
 import json
 
-url = "http://localhost:8000/generate-wordcloud"
+url = "http://localhost:8082/word-cloud/?max_words=10"
 payload = {
-    "text": "This is a sample text for word cloud generation. The more frequent words will appear larger in the word cloud visualization. Word clouds are useful for visualizing the most important words in a document or corpus."
+    "text": "علی ایک اچھا لڑکا ہے۔ اسکول جاتا ہے۔ کتاب پڑھتا ہے۔ علی نے کتاب خریدی۔"
 }
 headers = {"Content-Type": "application/json"}
 
@@ -125,43 +123,26 @@ word_cloud_image = result["word_cloud_image"]
 word_stats = result["word_stats"]
 ```
 
-## Text Processing
-
 The API performs several text processing steps:
 
-1. **Tokenization**: Splits text into individual words
-2. **Stopword Removal**: Removes common words that don't add significant meaning
-3. **Frequency Analysis**: Counts word occurrences and calculates statistics
-4. **Visualization**: Generates the word cloud with word sizes proportional to frequency
+1. **Tokenization**: Splits text into individual words using the Stanza Urdu NLP pipeline.
+2. **POS Tagging & Filtering**: Uses Stanza UPOS tags to strictly return nouns and proper nouns (`NOUN`, `PROPN`).
+3. **Stopword & Symbol Removal**: Removes common Urdu stopwords and punctuation.
+4. **Frequency Analysis**: Counts the top words occurrences and limits them based on the `max_words` parameter.
 
 ## API Response
 
-The API returns a JSON response with:
-
-1. **Word Cloud Image**: Base64-encoded PNG image
-2. **Word Statistics**: List of words with their counts, percentages, and percentiles
-3. **Word Count**: Total number of words analyzed
+The API returns a JSON response containing frequencies mapping:
 
 Example response structure:
 ```json
 {
-  "word_cloud_image": "base64-encoded-image-data",
-  "word_stats": [
-    {
-      "word": "cloud",
-      "count": 3,
-      "percentage": 7.5,
-      "percentile": 95.2
-    },
-    {
-      "word": "words",
-      "count": 2,
-      "percentage": 5.0,
-      "percentile": 85.7
-    },
-    ...
-  ],
-  "word_count": 40
+  "frequencies": {
+    "علی": 2,
+    "کتاب": 2,
+    "لڑکا": 1,
+    "اسکول": 1
+  }
 }
 ```
 
