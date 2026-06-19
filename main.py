@@ -55,4 +55,4 @@ async def live_status():
 
 # Add the following block to run the app as a script
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8082)
+    uvicorn.run(app, host="0.0.0.0", port=8084)
