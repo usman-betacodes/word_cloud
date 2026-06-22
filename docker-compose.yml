@@ -1,0 +1,11 @@
+services:
+  word_cloud_formedia:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: word_cloud_formedia
+    ports:
+      - "8084:8084"
+    env_file:
+      - .env
+    restart: unless-stopped

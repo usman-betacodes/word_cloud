@@ -1,7 +1,19 @@
-myenv/
-**/__pycache__/
-*.__pycache__
-*.pyc
-
-venv/
+# Environments
+.env
 .venv/
+venv/
+myenv/
+env/
+
+# Python Cache
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Local Logs
+*.log

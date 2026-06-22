@@ -1,140 +1,106 @@
-# Nimar Word Cloud AI
+
+# Word Cloud 
 
 An advanced text analysis API for generating word clouds with detailed word statistics.
 
 ## Overview
 
-Nimar Word Cloud AI is a powerful API that analyzes text input and generates rich word cloud visualizations with comprehensive word statistics. The system processes text to identify word frequencies, percentages, and percentile ranks, making it ideal for text analysis, content summarization, and data visualization.
+Nimar Word Cloud AI is a powerful API that analyzes text input and extracts rich word frequency statistics. The system processes text to identify word frequencies, making it ideal for text analysis, content summarization, and data visualization. 
 
 ## Features
 
-- Text analysis and word frequency calculation restricted to Nouns and Proper Nouns
-- RESTful API for easy integration
-- Native support for Urdu text processing using Stanza NLP Model
-- Minimalist and reliable backend processing
-- Customizable frequency limits via `max_words` parameter
+- **Nouns & Proper Nouns Only**: Text analysis and word frequency calculation restricted to meaningful grammatical targets.
+- **Native Urdu Support**: Processes Urdu text accurately using the Stanford Stanza NLP Model.
+- **Containerized**: Fully Dockerized with pre-cached NLP models for instant deployment and startup.
+- **Dynamic Configuration**: No hardcoded values; fully configurable via environment variables.
 
-## Installation
+---
 
-### Prerequisites
+## Environment Configuration
 
-- Python 3.8+
-- FastAPI
-- Stanza
-- PyTorch
-- Uvicorn
+Create a `.env` file in the root directory to configure the application runtime:
 
-### Setup
+```env
+HOST=0.0.0.0
+PORT=8082
 
-1. Clone the repository:
-```bash
-git clone https://github.com/AI-TEAM-R-D-Models/nimar-world-cloud-ai.git
-cd nimar-world-cloud-ai
 ```
 
-2. Create and activate a virtual environment:
+---
+
+## Deployment (Production)
+
+The recommended way to run this service is via Docker. The Docker image pre-downloads the ~200MB Stanza Urdu language models during the build phase, meaning the container starts instantly without wasting bandwidth or delaying requests.
+
+1. Ensure your `.env` file is created.
+2. Build and start the service in the background:
+
+```bash
+docker compose up --build -d
+
+```
+
+3. Check the logs to verify the server has started:
+
+```bash
+docker logs nimar_word_cloud_service
+
+```
+
+---
+
+## Local Development Setup
+
+If you need to run the application directly on your host machine for development:
+
+1. Create and activate a virtual environment:
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 ```
 
-3. Install the required dependencies:
+2. Install the required dependencies:
+
 ```bash
 pip install -r requirements.txt
+
 ```
 
-## Usage
-
-### Running the API
-
-To start the Word Cloud API server, run the `main.py` file:
+3. Run the application (it will automatically download the Stanza models on the first run if they are not cached):
 
 ```bash
 python main.py
+
 ```
 
-By default, this will start a FastAPI server on `http://0.0.0.0:8082`.
+---
 
-### API Endpoints
+## API Endpoints
 
-#### Generate Word Cloud
+### Generate Word Frequencies
 
-- **Endpoint**: `/word-cloud/`
-- **Method**: POST
-- **Query Parameter**: `max_words` (optional, default 10, limits the return payload)
-- **Request Body**: JSON with a `text` field
-- **Response**: JSON with the top identified words and their frequencies
-
-#### API Models
-
-The API uses Pydantic models for request and response validation:
-
-```python
-class TextInput(BaseModel):
-    """
-    Pydantic model for input text.
-    Attributes:
-        text (str): The input text from which to generate the word cloud.
-    """
-    text: str
-
-class WordStats(BaseModel):
-    """
-    Pydantic model for word statistics.
-    Attributes:
-        word (str): The word itself.
-        count (int): The frequency count of the word.
-        percentage (float): The percentage representation of the word's frequency.
-        percentile (float): The percentile rank of the word based on frequency.
-    """
-    word: str
-    count: int
-    percentage: float
-    percentile: float
-```
+* **Endpoint**: `/word-cloud/`
+* **Method**: POST
+* **Query Parameter**: `max_words` (optional, default 10, limits the return payload)
+* **Request Body**: JSON with a `text` field
 
 ### Example Request
 
 Using cURL:
+
 ```bash
 curl -X POST "http://localhost:8082/word-cloud/?max_words=10" \
      -H "Content-Type: application/json" \
      -d '{"text": "علی ایک اچھا لڑکا ہے۔ اسکول جاتا ہے۔ کتاب پڑھتا ہے۔ علی نے کتاب خریدی۔"}'
+
 ```
 
-Using Python requests:
-```python
-import requests
-import json
+### Example Response
 
-url = "http://localhost:8082/word-cloud/?max_words=10"
-payload = {
-    "text": "علی ایک اچھا لڑکا ہے۔ اسکول جاتا ہے۔ کتاب پڑھتا ہے۔ علی نے کتاب خریدی۔"
-}
-headers = {"Content-Type": "application/json"}
+The API performs tokenization, UPOS filtering (NOUN, PROPN), stopword removal, and frequency counting to return:
 
-response = requests.post(url, data=json.dumps(payload), headers=headers)
-result = response.json()
-
-# Access the word cloud image
-word_cloud_image = result["word_cloud_image"]
-
-# Access word statistics
-word_stats = result["word_stats"]
-```
-
-The API performs several text processing steps:
-
-1. **Tokenization**: Splits text into individual words using the Stanza Urdu NLP pipeline.
-2. **POS Tagging & Filtering**: Uses Stanza UPOS tags to strictly return nouns and proper nouns (`NOUN`, `PROPN`).
-3. **Stopword & Symbol Removal**: Removes common Urdu stopwords and punctuation.
-4. **Frequency Analysis**: Counts the top words occurrences and limits them based on the `max_words` parameter.
-
-## API Response
-
-The API returns a JSON response containing frequencies mapping:
-
-Example response structure:
 ```json
 {
   "frequencies": {
@@ -144,19 +110,3 @@ Example response structure:
     "اسکول": 1
   }
 }
-```
-
-## Deployment
-
-The API can be deployed using various methods:
-
-### Docker Deployment
-
-```bash
-docker build -t nimar-word-cloud-ai .
-docker run -d -p 8000:8000 nimar-word-cloud-ai
-```
-
-### Cloud Deployment
-
-The API can be deployed to cloud platforms like AWS, Google Cloud, or Azure using their respective container services.

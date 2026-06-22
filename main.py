@@ -4,6 +4,7 @@ from models import TextInput, WordFrequencyResponse
 from utils import *
 import uvicorn
 from typing import List
+import os
 
 # Initialize FastAPI app
 app = FastAPI(title="Urdu Word Cloud API", version="3.0")
@@ -55,4 +56,8 @@ async def live_status():
 
 # Add the following block to run the app as a script
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8084)
+    # Pull settings from the environment, use defaults if they don't exist
+    port = int(os.getenv("PORT", 8084))
+    host = os.getenv("HOST", "0.0.0.0")
+    
+    uvicorn.run(app, host=host, port=port)
