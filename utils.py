@@ -27,47 +27,82 @@ ur_nlp = stanza.Pipeline(
 )
 
 # =========================================================
-# STOPWORDS  (function words - safe to hardcode, closed set)
-# =========================================================
-stop_words = {
-    "ہے", "کی", "کا", "میں", "سے", "اور", "ایک", "پر", "کو", "کے", "ہیں",
-    "تو", "کہ", "نے", "یہ", "وہ", "تھا", "تھی", "تھے", "کر", "رہا", "رہی",
-    "گیا", "گئی", "دی", "لیا", "ہو", "جا", "نہ", "نہیں", "تک", "بھی", "ہی",
-    "جو", "اس", "ان", "اپنے", "اپنی", "گا", "گے", "گی", "دیا", "لیے", "ساتھ",
-    "بعد", "دوران", "خلاف", "مطابق", "ذریعے", "علاوہ", "باعث", "وجہ",
-}
-
-# =========================================================
 # NORMALIZATION
 # =========================================================
 def normalize_urdu(text: str) -> str:
-    """Clean invisible chars, unify letter forms, fix spacing."""
     if not text:
         return ""
- 
-    # Invisible / zero-width characters
+
     text = text.replace("\u200c", " ").replace("\u200b", " ")
     text = text.replace("\u200d", "").replace("\ufeff", "")
- 
-    # Unify Arabic vs Urdu letter forms (same word, different codepoint)
-    text = text.replace("\u064a", "\u06cc")  # Arabic ya  -> Urdu ya
-    text = text.replace("\u0643", "\u06a9")  # Arabic kaf -> Urdu kaf
-    text = text.replace("\u0629", "\u06c1")  # ta marbuta -> Urdu ha
- 
-    # Strip Arabic diacritics / harakat
+
+    # Arabic -> Urdu variants
+    text = text.replace("\u064a", "\u06cc")  # ي -> ی
+    text = text.replace("\u0643", "\u06a9")  # ك -> ک
+    text = text.replace("\u0629", "\u06c1")  # ة -> ہ
+
+    # Remove diacritics
     text = re.sub(r"[\u064b-\u0652\u0670]", "", text)
- 
-    # Space out punctuation so it never glues to words
-    text = re.sub(r"([۔،؛:!؟()\"'])", r" \1 ", text)
- 
+
+    # Normalize spaces
     text = re.sub(r"\s+", " ", text)
+
     return text.strip()
- 
- 
+
+
 def clean_token(token: str) -> str:
-    """Keep Urdu letters and spaces only."""
     token = re.sub(r"[^\u0600-\u06FF\s]", "", token)
-    return re.sub(r"\s+", " ", token).strip()
+    return normalize_urdu(token)
+
+# =========================================================
+# STOPWORDS  (function words - safe to hardcode, closed set)
+# =========================================================
+STOP_WORDS = {
+    "ہے", "ہیں", "ہےں", "تھا", "تھی", "تھے", "ہوگا", "ہوگی", "ہوں",
+    "ہوتا", "ہوتی", "ہوتے", "ہو", "ہوا", "ہوئی", "ہوئے", "ہونا",
+    "ہونے", "ہوکر", "ہوکے",
+
+    "میں", "ہم", "تم", "آپ", "یہ", "وہ", "اس", "اُس", "ان", "انہیں",
+    "جس", "جسے", "جسکا", "جسکی", "جسکے", "کون", "کونسا", "کونسی",
+    "کس", "کس نے", "کس کو",
+
+    "کو", "کا", "کی", "کے", "سے", "پر", "تک", "لیے", "کےلیے",
+    "کیلئے", "واسطے", "طرف", "اندر", "باہر", "اوپر", "نیچے",
+
+    "اور", "یا", "لیکن", "مگر", "بلکہ", "کیونکہ", "چونکہ", "اگر",
+    "تو", "پھر", "ورنہ", "جب", "جبکہ", "اس لیے", "لہٰذا",
+
+    "کیا", "کیوں", "کب", "کہاں", "کدھر", "کیسے",
+
+    "جی", "ہاں", "نہیں", "نا", "نہ", "اچھا", "ٹھیک", "ٹھیک ہے",
+    "اوکے", "یار", "بھئی", "دیکھو", "سنو", "مطلب", "یعنی", "بس",
+    "صرف", "ذرا", "چلو",
+
+    "اب", "تب", "ابھی", "کبھی", "ہمیشہ", "اکثر", "پہلے", "بعد",
+    "کل", "آج", "پرسوں", "فوراً",
+
+    "اوہ", "اوہو", "واہ", "ارے", "اچھا اچھا", "ٹھیک ٹھاک",
+    "کیا بات ہے", "چلیں",
+
+    "آؤ", "جاؤ", "کرو", "کرلو", "دیکھو نا", "سنو نا", "چلو نا",
+
+    "ہی", "بھی",
+
+    # Existing words
+    "ایک", "کہ", "نے", "جو", "اپنے", "اپنی",
+    "گا", "گے", "گی", "دیا", "دی", "لیا",
+    "ساتھ", "دوران", "خلاف", "مطابق", "ذریعے",
+    "علاوہ", "باعث", "وجہ",
+
+    # Additional words provided
+    "ہی،", "بی", "سی", "ڈی", "چی", "پی", "دار", "آنی",
+    "نائب", "آباد", "جے", "ای", "عوام", "حل",
+    "امن", "دنیا", "میڈیا", "رپورٹ", "خبریں"
+}
+# Normalize all stop words once
+stop_words = {normalize_urdu(word) for word in STOP_WORDS}
+
+
  
  
 # =========================================================
@@ -76,30 +111,26 @@ def clean_token(token: str) -> str:
 #  unseen splinters because it judges shape, not identity)
 # =========================================================
 def is_valid_word(word: str) -> bool:
-    """
-    A token is kept only if it plausibly looks like a real Urdu word.
-    No hardcoded bad-word list - this generalizes to open-domain news.
-    """
+
+    word = normalize_urdu(word)
+
     if not word:
         return False
- 
-    # Single-char tokens are almost always tokenizer splinters.
+
     if len(word) < 2:
         return False
- 
-    # Absurdly long = merged OCR garbage.
+
     if len(word) > 30:
         return False
- 
-    # Pure function words.
+
     if word in stop_words:
         return False
- 
-    # Must contain at least 2 distinct Urdu letters (filters "ٹٹ" etc.)
+
     letters = [c for c in word if "\u0600" <= c <= "\u06FF"]
+
     if len(set(letters)) < 2:
         return False
- 
+
     return True
  
  
@@ -115,55 +146,65 @@ NEWS_PHRASE_PATTERNS = [
     r"([\u0600-\u06FF]+\s+ہسپتال)",
 ]
  
- 
 def extract_words(text: str) -> List[str]:
     """
     Extract nouns + named entities from open-domain Urdu text.
- 
+
     Order matters: multi-word phrases first (NER + regex), recording
     which single tokens they consume, so the noun pass does not
     double-count a token already inside a phrase.
     """
     if not text.strip():
         return []
- 
+
     text = normalize_urdu(text)
     doc = ur_nlp(text)
- 
+
     extracted: List[str] = []
     consumed: set = set()
- 
-    # ---- 1. NAMED ENTITIES (generalizes across all news) ----
+
+    # ---- 1. NAMED ENTITIES ----
     for ent in getattr(doc, "ents", []):
-        phrase = clean_token(ent.text)
+        phrase = normalize_urdu(clean_token(ent.text))
+
         if is_valid_word(phrase):
             extracted.append(phrase)
             consumed.update(phrase.split())
- 
-    # ---- 2. MINIMAL NEWS REGEX (a few common constructs only) ----
+
+    # ---- 2. NEWS REGEX PHRASES ----
     for pattern in NEWS_PHRASE_PATTERNS:
         for match in re.findall(pattern, text):
-            phrase = clean_token(match)
+
+            phrase = normalize_urdu(clean_token(match))
+
             if is_valid_word(phrase):
                 extracted.append(phrase)
                 consumed.update(phrase.split())
- 
+
     # ---- 3. SINGLE NOUNS / PROPER NOUNS ----
     for sentence in doc.sentences:
         for word in sentence.words:
+
             if word.upos not in ("NOUN", "PROPN"):
                 continue
-            token = clean_token(word.text)
+
+            token = normalize_urdu(clean_token(word.text))
+
             if token in consumed:
                 continue
+
+            # DEBUG (remove later)
+            # print(f"TOKEN={repr(token)} | STOPWORD={token in stop_words}")
+
             if is_valid_word(token):
                 extracted.append(token)
+
             elif 0 < len(token) < 2:
-                # Log dropped single-char splinters for later review.
-                frag_logger.info(f"dropped_fragment\t{token}\t{word.upos}")
- 
+                frag_logger.info(
+                    f"dropped_fragment\t{token}\t{word.upos}"
+                )
+
     return extracted
- 
  
 # =========================================================
 # FREQUENCY
