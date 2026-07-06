@@ -47,13 +47,25 @@ python main.py
 
 ### `POST /word-frequency/`
 
-**Query:** `max_words` (default 10, max 100)
+**Query parameters:**
+
+- `max_words` (default 10, max 100)
+- `merge_concepts` (default false) — merge cross-language aliases (e.g. `pakistan` + `پاکستان`)
 
 **Body:**
 
 ```json
 { "text": "Pakistan ki economy is improving but inflation bohat zyada hai." }
 ```
+
+**Limits:** `MAX_INPUT_CHARS` env var (default 50000).
+
+**Phase 2 features:**
+
+- Roman Urdu spelling normalization (`achha` → `acha`)
+- English lemmatization (`improving` → `improve`)
+- Optional cross-script concept merging via `merge_concepts=true`
+- Per-request processor logging
 
 **Example:**
 

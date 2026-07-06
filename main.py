@@ -4,8 +4,13 @@ from models import TextInput, WordFrequencyResponse
 from app.orchestrator import generate_word_frequency
 import uvicorn
 import os
+import logging
 
-app = FastAPI(title="Multilingual Word Frequency API", version="2.0")
+MAX_INPUT_CHARS = int(os.getenv("MAX_INPUT_CHARS", "50000"))
+
+logging.basicConfig(level=logging.INFO)
+
+app = FastAPI(title="Multilingual Word Frequency API", version="2.1")
 
 
 @app.exception_handler(HTTPException)
@@ -20,6 +25,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def create_multilingual_word_frequency(
   data: TextInput,
   max_words: int = Query(10, gt=0, le=100, description="Maximum number of words to return (must be between 1 and 100)"),
+  merge_concepts: bool = Query(False, description="Merge cross-language aliases into canonical keys"),
 ):
   """
   Generate word frequencies from mixed Urdu, Roman Urdu, and English text.
@@ -27,8 +33,18 @@ async def create_multilingual_word_frequency(
   if not data.text.strip():
     raise HTTPException(status_code=400, detail="Input text is empty")
 
+  if len(data.text) > MAX_INPUT_CHARS:
+    raise HTTPException(
+      status_code=400,
+      detail=f"Input text exceeds maximum length of {MAX_INPUT_CHARS} characters",
+    )
+
   try:
-    return await generate_word_frequency(data.text, max_words=max_words)
+    return await generate_word_frequency(
+      data.text,
+      max_words=max_words,
+      merge_concept_aliases=merge_concepts,
+    )
   except Exception as e:
     raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 

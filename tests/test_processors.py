@@ -34,7 +34,7 @@ class TestMixedPipeline(unittest.TestCase):
     merged = merge_frequencies([english_terms, roman_terms], max_words=10)
     freqs = merged["frequencies"]
     self.assertIn("economy", freqs)
-    self.assertIn("improving", freqs)
+    self.assertIn("improve", freqs)
     self.assertIn("inflation", freqs)
     self.assertIn("bohat", freqs)
     self.assertIn("zyada", freqs)

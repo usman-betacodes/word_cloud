@@ -9,6 +9,15 @@ from app.processors.roman_urdu import ROMAN_STOP_WORDS
 
 _english_vocab: Set[str] | None = None
 
+# Latin tokens that are Roman Urdu in media text even if they look English.
+ROMAN_HINTS = {
+  "pakistan", "paakistan", "islamabad", "karachi", "lahore", "peshawar",
+  "quetta", "multan", "rawalpindi", "punjab", "sindh", "balochistan",
+  "bohat", "bohot", "boht", "zyada", "zyadaa", "tez", "tezz",
+  "rupee", "crore", "lakh", "imran", "nawaz", "bilawal",
+  "acha", "accha", "achha", "behtar", "behtr", "khabar", "khabrain",
+}
+
 
 def _get_english_vocab() -> Set[str]:
   global _english_vocab
@@ -49,6 +58,9 @@ def classify_latin_tokens(tokens: List[str]) -> Tuple[List[str], List[str]]:
       continue
     if token in ENGLISH_STOP_WORDS:
       frag_logger.info(f"dropped_stopword\tenglish\t{token}")
+      continue
+    if token in ROMAN_HINTS:
+      roman_tokens.append(token)
       continue
     if _looks_english(token, english_vocab):
       english_tokens.append(token)

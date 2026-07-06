@@ -11,6 +11,13 @@ class TestOrchestrator(unittest.IsolatedAsyncioTestCase):
     self.assertIn("economy", freqs)
     self.assertIn("bohat", freqs)
 
+  async def test_merge_concepts_flag(self):
+    text = "Pakistan ki economy is improving. پاکستان کی معیشت بہتر ہو رہی ہے."
+    result = await generate_word_frequency(text, max_words=10, merge_concept_aliases=True)
+    freqs = result["frequencies"]
+    self.assertIn("پاکستان", freqs)
+    self.assertIn("معیشت", freqs)
+
   async def test_empty_text_returns_empty(self):
     result = await generate_word_frequency("   ", max_words=10)
     self.assertEqual(result["frequencies"], {})

@@ -1,5 +1,7 @@
 from typing import List
 
+from app.core.roman_normalize import normalize_roman
+
 ROMAN_STOP_WORDS = {
   "hai", "hain", "han", "tha", "thi", "the", "hoga", "hogi", "honge",
   "hon", "hoon", "hota", "hoti", "hote", "ho", "hua", "hui", "hue",
@@ -14,7 +16,7 @@ ROMAN_STOP_WORDS = {
   "chunanche", "agar", "to", "phir", "warna", "jab", "jabke",
   "isliye", "lehaza",
   "kya", "kyun", "kyu", "kab", "kahan", "kidhar", "kaise",
-  "ji", "haan", "nahi", "nahin", "na", "ne", "acha",
+  "ji", "haan", "nahi", "nahin", "na", "ne",
   "theek", "theekhai", "ok", "okay",
   "yar", "yaar", "bhai", "bhaii", "dekho", "suno", "matlab",
   "yani", "bas", "sirf", "zara", "chalo",
@@ -31,7 +33,6 @@ ROMAN_STOP_WORDS = {
   "b", "c", "d", "ch", "p",
   "dar", "ani", "naib", "abad",
   "j", "a", "awam", "hal",
-  "aman", "duniya", "media", "khabrain", "khabar",
 }
 
 
@@ -39,7 +40,8 @@ class RomanUrduProcessor:
   def extract_terms(self, tokens: List[str]) -> List[str]:
     valid: List[str] = []
     for token in tokens:
-      if token in ROMAN_STOP_WORDS:
+      normalized = normalize_roman(token)
+      if normalized in ROMAN_STOP_WORDS:
         continue
-      valid.append(token)
+      valid.append(normalized)
     return valid

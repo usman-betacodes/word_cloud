@@ -14,7 +14,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 RUN python -c "import stanza; stanza.download('ur', processors='tokenize,pos,ner', verbose=False)"
-RUN python -c "import nltk; nltk.download('stopwords', quiet=True); nltk.download('words', quiet=True)"
+RUN python -c "import nltk; nltk.download('stopwords', quiet=True); nltk.download('words', quiet=True); nltk.download('wordnet', quiet=True); nltk.download('omw-1.4', quiet=True)"
 
 COPY . .
 
