@@ -1,13 +1,12 @@
 from fastapi import FastAPI, HTTPException, Request,Query
 from fastapi.responses import JSONResponse
 from models import TextInput, WordFrequencyResponse
-from utils import *
+from utils import generate_word_frequency
 import uvicorn
-from typing import List
 import os
 
 # Initialize FastAPI app
-app = FastAPI(title="Urdu Word Cloud API", version="3.0")
+app = FastAPI(title="Roman Urdu Word Cloud API", version="1.0")
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
@@ -19,14 +18,14 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         content={"success": False, "detail": exc.detail},
     )
 
-@app.post("/word-cloud/", response_model=WordFrequencyResponse)
-async def create_english_word_cloud(
+@app.post("/word-frequency/", response_model=WordFrequencyResponse)
+async def create_roman_urdu_word_cloud(
     data: TextInput, 
     max_words: int = Query(10, gt=0, le=100, description="Maximum number of words to return (must be between 1 and 100)")
 ):
     """
-    Generate an English word cloud from the input text, remove stopwords,
-    and return the words sorted by frequency in a dictionary.
+    Generate word frequencies from Roman Urdu text after
+    tokenization, normalization, and stop-word removal.
     
     The 'max_words' query parameter controls the maximum number of words returned.
     It must be greater than 0 and less than or equal to 100.
@@ -39,7 +38,7 @@ async def create_english_word_cloud(
         # Attempt to generate word frequency with the specified max_words
         word_freq = await generate_word_frequency(data.text, max_words=max_words)
 
-        # Return success with an empty word cloud if no valid words are found
+        # Return the word frequencies in the response
         return word_freq
     
     except Exception as e:

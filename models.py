@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List,Dict
+from typing import Dict
 
 
 class TextInput(BaseModel):
@@ -28,4 +28,7 @@ class WordStats(BaseModel):
     percentile: float
 
 class WordFrequencyResponse(BaseModel):
+    """
+    Response containing word frequencies.
+    """
     frequencies: Dict[str, int]

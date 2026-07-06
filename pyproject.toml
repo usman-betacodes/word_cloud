@@ -1,13 +1,13 @@
 [project]
 name = "world-cloud-formedia"
 version = "0.1.0"
-description = "Add your description here"
+description = "Roman Urdu word frequency API for media text analysis"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[all]>=0.136.3",
-    "nltk>=3.9.4",
+    "matplotlib>=3.11.0",
     "numpy>=2.4.6",
-    "stanza>=1.12.2",
     "uvicorn>=0.49.0",
+    "wordcloud>=1.9.6",
 ]

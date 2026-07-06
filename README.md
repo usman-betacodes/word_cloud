@@ -1,18 +1,18 @@
 
-# Word Cloud 
+# Roman Urdu Word Cloud API
 
-An advanced text analysis API for generating word clouds with detailed word statistics.
+A lightweight text analysis API that extracts word frequency statistics from Roman Urdu text for content analysis and word cloud visualization.
 
 ## Overview
 
-Nimar Word Cloud AI is a powerful API that analyzes text input and extracts rich word frequency statistics. The system processes text to identify word frequencies, making it ideal for text analysis, content summarization, and data visualization. 
+This service analyzes Roman Urdu input (Latin script, e.g. `acha`, `pakistan`, `bohat`) and returns the most frequently occurring words after tokenization and stop-word removal. The API returns JSON frequencies only; clients can render word cloud images locally using the included `visualize.py` script or their own frontend.
 
 ## Features
 
-- **Nouns & Proper Nouns Only**: Text analysis and word frequency calculation restricted to meaningful grammatical targets.
-- **Native Urdu Support**: Processes Urdu text accurately using the Stanford Stanza NLP Model.
-- **Containerized**: Fully Dockerized with pre-cached NLP models for instant deployment and startup.
-- **Dynamic Configuration**: No hardcoded values; fully configurable via environment variables.
+- **Roman Urdu Processing**: Tokenizes Latin-script text with regex and filters common Roman Urdu stop words.
+- **Lightweight**: No heavy NLP models — fast startup and low memory footprint.
+- **Containerized**: Fully Dockerized for simple deployment.
+- **Dynamic Configuration**: Host and port configurable via environment variables.
 
 ---
 
@@ -22,7 +22,7 @@ Create a `.env` file in the root directory to configure the application runtime:
 
 ```env
 HOST=0.0.0.0
-PORT=8082
+PORT=8084
 
 ```
 
@@ -30,7 +30,7 @@ PORT=8082
 
 ## Deployment (Production)
 
-The recommended way to run this service is via Docker. The Docker image pre-downloads the ~200MB Stanza Urdu language models during the build phase, meaning the container starts instantly without wasting bandwidth or delaying requests.
+The recommended way to run this service is via Docker.
 
 1. Ensure your `.env` file is created.
 2. Build and start the service in the background:
@@ -43,7 +43,7 @@ docker compose up --build -d
 3. Check the logs to verify the server has started:
 
 ```bash
-docker logs nimar_word_cloud_service
+docker logs word_cloud_formedia
 
 ```
 
@@ -68,7 +68,7 @@ pip install -r requirements.txt
 
 ```
 
-3. Run the application (it will automatically download the Stanza models on the first run if they are not cached):
+3. Run the application:
 
 ```bash
 python main.py
@@ -81,32 +81,39 @@ python main.py
 
 ### Generate Word Frequencies
 
-* **Endpoint**: `/word-cloud/`
+* **Endpoint**: `/word-frequency/`
 * **Method**: POST
 * **Query Parameter**: `max_words` (optional, default 10, limits the return payload)
 * **Request Body**: JSON with a `text` field
+
+### Health Check
+
+* **Endpoint**: `/live`
+* **Method**: GET
 
 ### Example Request
 
 Using cURL:
 
 ```bash
-curl -X POST "http://localhost:8082/word-cloud/?max_words=10" \
+curl -X POST "http://localhost:8084/word-frequency/?max_words=10" \
      -H "Content-Type: application/json" \
-     -d '{"text": "علی ایک اچھا لڑکا ہے۔ اسکول جاتا ہے۔ کتاب پڑھتا ہے۔ علی نے کتاب خریدی۔"}'
+     -d '{"text": "ye naya model bohat tez hai aur aik acha system hai"}'
 
 ```
 
 ### Example Response
 
-The API performs tokenization, UPOS filtering (NOUN, PROPN), stopword removal, and frequency counting to return:
+The API performs tokenization, stop-word removal, and frequency counting to return:
 
 ```json
 {
   "frequencies": {
-    "علی": 2,
-    "کتاب": 2,
-    "لڑکا": 1,
-    "اسکول": 1
+    "naya": 1,
+    "model": 1,
+    "bohat": 1,
+    "tez": 1,
+    "system": 1
   }
 }
+```

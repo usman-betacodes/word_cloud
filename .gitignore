@@ -16,4 +16,4 @@ env/
 Thumbs.db
 
 # Local Logs
-*.log
+*.logrejected_fragments.log
