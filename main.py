@@ -24,7 +24,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 @app.post("/word-frequency/", response_model=WordFrequencyResponse)
 async def create_multilingual_word_frequency(
   data: TextInput,
-  max_words: int = Query(10, gt=0, le=100, description="Maximum number of words to return (must be between 1 and 100)"),
+  max_words: int = Query(20, gt=0, le=100, description="Maximum number of words to return (must be between 1 and 100)"),
   merge_concepts: bool = Query(False, description="Merge cross-language aliases into canonical keys"),
 ):
   """
